@@ -1,0 +1,39 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyrefly/
+
+# uv
+uv.lock
+
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+
+# DB / Misc
+*.sqlite
+*.db
+pgdata/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
