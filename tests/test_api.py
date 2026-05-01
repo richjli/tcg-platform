@@ -131,3 +131,44 @@ def test_list_alerts_empty(client: TestClient) -> None:
     response = client.get("/alerts/")
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_record_alert(client: TestClient) -> None:
+    """POST /alerts/ records a stock alert for an existing card."""
+    card = client.post(
+        "/cards/", json={"name": "Charizard ex", "set_name": "OBF", "game": "pokemon"}
+    ).json()
+    payload = {
+        "card_id": card["id"],
+        "retailer": "target",
+        "in_stock": True,
+        "url": "https://target.com/p/charizard",
+    }
+    response = client.post("/alerts/", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["retailer"] == "target"
+    assert data["in_stock"] is True
+    assert data["notified"] is False
+
+
+def test_record_alert_card_not_found(client: TestClient) -> None:
+    """POST /alerts/ returns 404 when the card does not exist."""
+    response = client.post(
+        "/alerts/",
+        json={"card_id": 999, "retailer": "target", "in_stock": True},
+    )
+    assert response.status_code == 404
+
+
+def test_list_alerts_unnotified_filter(client: TestClient) -> None:
+    """GET /alerts/?unnotified_only=true returns only unnotified alerts."""
+    card = client.post(
+        "/cards/", json={"name": "Pikachu", "set_name": "Base", "game": "pokemon"}
+    ).json()
+    client.post(
+        "/alerts/", json={"card_id": card["id"], "retailer": "target", "in_stock": True}
+    )
+    response = client.get("/alerts/?unnotified_only=true")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
